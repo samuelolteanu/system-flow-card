@@ -81,13 +81,38 @@ export class SystemFlowCard extends LitElement {
     return entity.attributes.unit_of_measurement;
   }
 
-  private displayValue = (value, abs: boolean = false, unit: string | null = null, places: number | boolean = false): number | string | undefined => {
-    let newValue: string | number = value;
-    if(abs) newValue = Math.abs(coerceNumber(newValue));
-    if(typeof newValue === 'number' && typeof places === 'number') newValue = round(newValue, places);
-    if(unit) newValue = `${newValue} ${unit}`;
-    return newValue;
-  }    
+  private displayValue = (val: any, abs: boolean = false, unit: string | null = null, places: number | boolean = false): number | string | undefined => {
+    let value = val;
+
+    // 1. SMART CHECK: Only convert to number if it is PURELY numeric.
+    // "23.456" -> Becomes Number(23.456) -> Gets rounded.
+    // "8R/Z"   -> Becomes NaN            -> Stays "8R/Z" (Text preserved).
+    if (typeof value === 'string') {
+      const numberValue = Number(value);
+      if (!isNaN(numberValue) && value.trim() !== '') {
+        value = numberValue;
+      }
+    }
+
+    // 2. Handle Absolute Value
+    if (abs && typeof value === 'number') {
+      value = Math.abs(value);
+    }
+
+    // 3. Rounding Logic (Only for valid numbers)
+    if (typeof value === 'number') {
+      // Default to 1 decimal place if 'places' is strictly false/undefined
+      const prec = typeof places === 'number' ? places : 1;
+      const factor = 10 ** prec;
+      value = Math.round(value * factor) / factor;
+    }
+
+    // 4. Append Unit
+    if (unit) {
+      return `${value} ${unit}`;
+    }
+    return value;
+  }   
 
   private getEntityValue = (ent: HassEntity | string | undefined, abs: boolean = false, showUnit: boolean = false, places: number | boolean = false): number | string | undefined => {
     const entity = typeof ent === 'string' ? this.getEntity(ent) : ent;
