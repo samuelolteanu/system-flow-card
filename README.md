@@ -68,6 +68,7 @@ The system is essentially an [element object](#element-object). The `value` is c
 | unit           | `string`    | entity unit   | Display unit for the element value
 | icon           | `string`    |               | Display icon for the element
 | color          | `string`    |               | Hex color for the element box
+| invert         | `boolean`   | false         | Invert the calculated system value (useful if your net calculation results in a negative number).
 | extra          | `object`    |               | Extra sensor values to display within the element box. See [element extra object](#element-extra-object) for additional extra options.
 
 #### Element object
