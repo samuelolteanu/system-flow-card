@@ -206,6 +206,12 @@ export class SystemFlowCard extends LitElement {
     });
     
     const extra = typeof this._config.system?.extra === "string" ? { main: this._config.system?.extra } : this._config.system?.extra
+    
+    // [CUSTOM FIX] Allow inverting the central System value via config
+    if ((this._config.system as any)?.invert) {
+      systemPower *= -1;
+    }
+
     elements.push({
       value: 'system',
       ...(this._config.system?.unit ? { unit: this._config.system.unit } : null),
@@ -365,15 +371,19 @@ export class SystemFlowCard extends LitElement {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 4px 0;
+      
+      /* FIX: Uneven padding to lift bottom text */
+      /* Top: 2px (make room), Bottom: 6px (lift "3W" up) */
+      padding: 2px 0 6px 0; 
+      
       box-sizing: border-box;
       
       align-items: center;
       text-align: center;
       
       /* --- FONT ADJUSTMENTS --- */
-      font-size: 12px; /* Reduced from 14px to fit emojis + text */
-      line-height: 1.2; /* slightly loose to accommodate emoji height */
+      font-size: 12px; 
+      line-height: 1.1; /* FIX: Tighter line height to fit emojis */
       /* ------------------------ */
       
       position: relative;
@@ -413,6 +423,7 @@ export class SystemFlowCard extends LitElement {
       margin: auto;
       overflow: hidden;
       font-size: 10px;
+      line-height: 1.1; /* FIX: Compact the side text so it doesn't push bottom text down */
     }
     .label {
       color: var(--secondary-text-color);
