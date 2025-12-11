@@ -26,6 +26,7 @@ export type CalculatedElementDef = ElementDef & {
     left?: string,
     right?: string
   },
+  display?: string | number;
   calculations: {
     toSystem: number,
     fromSystem: number | null,

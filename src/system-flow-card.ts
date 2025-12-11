@@ -137,10 +137,15 @@ export class SystemFlowCard extends LitElement {
 
   private elementValueArrows = (element: CalculatedElementDef) => html`
     <div class="value-row">
-      ${element.calculations.systemTotal
+      ${element.calculations.systemTotal || (element as any).display
         ? html`
           ${!['left', 'middle'].includes(element.position) ? this.elementArrows(element.calculations.systemTotal, element.position, this.getElementColor(element)) : null}
-          <span style="white-space: nowrap;">${this.displayValue(element.calculations.systemTotal, element.position !== 'middle', this.getElementUnit(element), 0)}</span>
+          <span style="white-space: nowrap;">${this.displayValue(
+              (element as any).display !== undefined ? (element as any).display : element.calculations.systemTotal, 
+              element.position !== 'middle', 
+              this.getElementUnit(element), 
+              0
+            )}</span>
           ${element.position === 'left' ? this.elementArrows(element.calculations.systemTotal, element.position, this.getElementColor(element)) : null}
         ` : null
       }
@@ -212,8 +217,20 @@ export class SystemFlowCard extends LitElement {
       systemPower *= -1;
     }
 
+    // [CUSTOM FIX] Allow overriding the system display value with a specific entity
+    // FIX: We explicitly tell TypeScript this variable can be a 'string' or 'undefined'
+    let systemDisplayOverride: string | undefined = undefined;
+    
+    if ((this._config.system as any)?.override && (this._config.system as any)?.value) {
+      const overrideEntity = this.getEntity((this._config.system as any).value);
+      if (overrideEntity) {
+        systemDisplayOverride = overrideEntity.state;
+      }
+    }
+
     elements.push({
       value: 'system',
+      display: systemDisplayOverride, // Now valid because we updated type.ts
       ...(this._config.system?.unit ? { unit: this._config.system.unit } : null),
       icon: this._config.system?.icon || 'mdi:house',
       ...(this._config.system?.extra ? { extra: this._config.system.extra } : null),
